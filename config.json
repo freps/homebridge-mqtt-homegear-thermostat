@@ -12,12 +12,12 @@
     ],
     "accessories": [
         {
-          "accessory":                 "mqtt-nest-thermostat",
-          "name":                      "mqtt-nest-thermostat",
+          "accessory":                 "mqtt-nestthermostat",
+          "name":                      "mqtt-nestthermostat",
           "url":                       "mqtt://127.0.0.1",
           "username":                  "xxxxxxx",
           "password":                  "xxxxxxx",
-          "caption":                   "mqtt-nest-thermostat",
+          "caption":                   "mqtt-nestthermostat",
           "payload_mode":              "ac_mode",
           "payload_on":                "true",
           "payload_off":               "false",

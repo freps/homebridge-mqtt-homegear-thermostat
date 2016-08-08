@@ -1,7 +1,7 @@
 {
-  "name": "homebridge-mqtt-nest-thermostat",
+  "name": "homebridge-mqtt-nestthermostat",
   "version": "0.0.3",
-  "description": "Homebridge plugin for MQTT mqtt-nest-thermostat",
+  "description": "Homebridge plugin for MQTT mqtt-nestthermostat",
   "note": "peerDependencies is hardcoded to peerDepdendencies in homebridge!!!",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/chaeplin/homebridge-mqtt-nest-thermostat"
+    "url": "https://github.com/chaeplin/homebridge-mqtt-nestthermostat"
   },
   "keywords": [
     "homebridge-plugin",
@@ -22,7 +22,7 @@
     "homekit",
     "Siri",
     "IoT",
-    "mqtt-nest-thermostat"
+    "mqtt-nestthermostat"
   ],
   "dependencies": {
     "mqtt": "^1.6.3"
@@ -30,7 +30,7 @@
   "author": "chaeplin",
   "license": "GPL2",
   "bugs": {
-    "url": "https://github.com/chaeplin/homebridge-mqtt-nest-thermostat/issues"
+    "url": "https://github.com/chaeplin/homebridge-mqtt-nestthermostat/issues"
   },
-  "homepage": "https://github.com/chaeplin/homebridge-mqtt-nest-thermostat"
+  "homepage": "https://github.com/chaeplin/homebridge-mqtt-nestthermostat"
 }

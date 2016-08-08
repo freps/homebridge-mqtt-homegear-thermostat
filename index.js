@@ -2,7 +2,8 @@
 
 'use strict';
 
-var Service, Characteristic, AwayCharacteristic;
+var inherits = require('util').inherits;
+var Service, Characteristic, AwayCharacteristic
 var mqtt = require("mqtt");
 
 function mqttnestthermostatAccessory(log, config) {
@@ -50,10 +51,10 @@ function mqttnestthermostatAccessory(log, config) {
   };
 
   this.service = new Service.Thermostat(this.name);
-
-  this.service.addCharacteristic(Characteristic.AwayCharacteristic)
-        .on('get', this.isAway.bind(this))
-        .on('set', this.setAway.bind(this));
+  this.service.addCharacteristic(AwayCharacteristic);
+  this.service.getCharacteristic(AwayCharacteristic)
+    .on('get', this.isAway.bind(this))
+    .on('set', this.setAway.bind(this));
 
   this.service.getCharacteristic(Characteristic.TargetTemperature)
     .setProps({
@@ -119,14 +120,14 @@ module.exports = function(homebridge) {
       Service = homebridge.hap.Service;
       Characteristic = homebridge.hap.Characteristic;
       makeAwayCharacteristic();
-      homebridge.registerAccessory("homebridge-mqtt-nest-thermostat", "mqtt-nest-thermostat", mqttnestthermostatAccessory);
+      homebridge.registerAccessory("homebridge-mqtt-nestthermostat", "mqtt-nestthermostat", mqttnestthermostatAccessory);
 }
 
 mqttnestthermostatAccessory.prototype.isAway = function(callback) {
     callback(null, this.Away);
 }        
 
-mqttnestthermostatAccessory.prototype.setTargetHeatingCoolingState = function(Away, callback, context) {
+mqttnestthermostatAccessory.prototype.setAway = function(Away, callback, context) {
     if(context !== 'fromSetValue') {
       this.Away = Away;
     }
@@ -181,25 +182,22 @@ mqttnestthermostatAccessory.prototype.getCurrentHeatingCoolingState = function(c
     callback(null, this.CurrentHeatingCoolingState);
 }
 
-//
-// Custom Characteristic for Away
-//
-function makeVolumeCharacteristic() {
+mqttnestthermostatAccessory.prototype.getServices = function() {
+  return [this.service];
+}
+
+function makeAwayCharacteristic() {
 
     AwayCharacteristic = function() {
-        Characteristic.call(this, 'Away', 'D6D47D29-4639-4F44-B53C-D84015DAEBDB');
+        Characteristic.call(this, 'Away', '91288267-5678-49B2-8D22-F57BE995AA00');
         this.setProps({
-			format: Characteristic.Formats.BOOL,
-			perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+          format: Characteristic.Formats.BOOL,
+          perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
         });
         this.value = this.getDefaultValue();
     };
 
     inherits(AwayCharacteristic, Characteristic);
-	Away.HOME = 0;
-	Away.AWAY = 1;    
-}
-
-mqttnestthermostatAccessory.prototype.getServices = function() {
-  return [this.service];
+    AwayCharacteristic.HOME = 0;
+    AwayCharacteristic.AWAY = 1;
 }
