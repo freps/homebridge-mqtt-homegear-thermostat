@@ -1,9 +1,9 @@
-// MQTT Switch Accessory plugin for HomeBridge
+// mqtt nest thermostat
 
 'use strict';
 
 var inherits = require('util').inherits;
-var Service, Characteristic, AwayCharacteristic
+var Service, Characteristic, AwayCharacteristic, FanSpeedCharacteristic
 var mqtt = require("mqtt");
 
 function mqttnestthermostatAccessory(log, config) {
@@ -29,22 +29,18 @@ function mqttnestthermostatAccessory(log, config) {
       password: config["password"],
       rejectUnauthorized: false
   };
+
   this.caption                    = config["caption"];
   this.topics                     = config["topics"];
-  this.payload_mode               = config["payload_mode"];
-  this.payload_on                 = config["payload_on"];
-  this.payload_off                = config["payload_off"];
-  this.payload_temp               = config["payload_temp"];
-  this.payload_ctemp              = config["payload_ctemp"];
-  this.payload_chui               = config["payload_chui"];
-
-  this.TargetTemperature          = config["TargetTemperature"];
-  this.TargetHeatingCoolingState  = config["TargetHeatingCoolingState"];
-  this.CurrentHeatingCoolingState = config["TargetHeatingCoolingState"];
-  this.CurrentTemperature         = 26;
+  this.TargetTemperature          = 27;
+  this.TargetHeatingCoolingState  = 0;
+  this.CurrentHeatingCoolingState = 0;
+  this.CurrentTemperature         = 0;
   this.CurrentRelativeHumidity    = 0;
   this.TemperatureDisplayUnits    = 0;
+  this.FanSpeed                   = 0;
   this.Away                       = 0;
+
   this.options_publish = {
     qos: 0,
     retain: true
@@ -55,6 +51,11 @@ function mqttnestthermostatAccessory(log, config) {
   this.service.getCharacteristic(AwayCharacteristic)
     .on('get', this.isAway.bind(this))
     .on('set', this.setAway.bind(this));
+
+  this.service.addCharacteristic(FanSpeedCharacteristic);
+  this.service.getCharacteristic(FanSpeedCharacteristic)
+    .on('get', this.getFanSpeed.bind(this))
+    .on('set', this.setFanSpeed.bind(this));
 
   this.service.getCharacteristic(Characteristic.TargetTemperature)
     .setProps({
@@ -91,7 +92,6 @@ function mqttnestthermostatAccessory(log, config) {
   this.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState)    
     .on('get', this.getCurrentHeatingCoolingState.bind(this));
 
-
   // connect to MQTT broker
   this.client = mqtt.connect(this.url, this.options);
   var that = this;
@@ -99,71 +99,82 @@ function mqttnestthermostatAccessory(log, config) {
       that.log('Error event on MQTT:', err);
   });
 
-  this.client.on('message', function (topic, message) {
-    if (topic == that.topics.getOn) {
-        var status = JSON.parse(message);
-        that.CurrentHeatingCoolingState = (status[that.payload_mode] == that.payload_on ? Characteristic.CurrentHeatingCoolingState.COOL : Characteristic.CurrentHeatingCoolingState.OFF);
-        that.TargetTemperature          = status[that.payload_temp];
-        that.CurrentTemperature         = status[that.payload_ctemp];
-        that.CurrentRelativeHumidity    = status[that.payload_chui];
+//--> esp this.Fanspeed
+//--> esp this.CurrentHeatingCoolingState
 
-        that.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).setValue(that.CurrentHeatingCoolingState, undefined, 'fromSetValue');
+  this.client.on('message', function (topic, message) {
+    if (topic == that.topics.get + 'api') {
+        var status = JSON.parse(message);
+        that.Away                       = status["away_state"];
+        that.TargetHeatingCoolingState  = status["TargetHeatingCoolingState"];
+        that.CurrentTemperature         = status["CurrentTemperature"];
+        that.CurrentRelativeHumidity    = status["CurrentRelativeHumidity"];
+        that.TargetTemperature          = status["TargetTemperature"];
+
+        that.service.getCharacteristic(AwayCharacteristic).setValue(that.Away, undefined, 'fromSetValue');
+        that.service.getCharacteristic(Characteristic.TargetHeatingCoolingState).setValue(that.TargetHeatingCoolingState, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.TargetTemperature).setValue(that.TargetTemperature, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.CurrentTemperature).setValue(that.CurrentTemperature, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.CurrentRelativeHumidity).setValue(that.CurrentRelativeHumidity, undefined, 'fromSetValue');
     }
   });
-  this.client.subscribe(this.topics.getOn);
+  this.client.subscribe(this.topics.get + '#');
 }
 
 module.exports = function(homebridge) {
       Service = homebridge.hap.Service;
       Characteristic = homebridge.hap.Characteristic;
       makeAwayCharacteristic();
+      makeFanSpeedCharacteristic();
       homebridge.registerAccessory("homebridge-mqtt-nestthermostat", "mqtt-nestthermostat", mqttnestthermostatAccessory);
+}
+
+mqttnestthermostatAccessory.prototype.setAway = function(Away, callback, context) {
+    if(context !== 'fromSetValue') {
+      this.Away = Away;
+      this.client.publish(this.topics.set + 'setAway', String(this.Away), this.options_publish); 
+    }
+    callback();
+}      
+
+mqttnestthermostatAccessory.prototype.setFanSpeed = function(Fanspeed, callback, context) {
+    if(context !== 'fromSetValue') {
+      this.Fanspeed = Fanspeed;
+      this.client.publish(this.topics.set + 'setFanSpeed', String(this.Fanspeed), this.options_publish); 
+    }
+    callback();
+}
+
+mqttnestthermostatAccessory.prototype.setTargetHeatingCoolingState = function(TargetHeatingCoolingState, callback, context) {
+    if(context !== 'fromSetValue') {
+      this.TargetHeatingCoolingState = TargetHeatingCoolingState;
+      this.client.publish(this.topics.set + 'setTargetHeatingCoolingState', String(this.TargetHeatingCoolingState), this.options_publish); 
+    }
+    callback();
+}
+
+mqttnestthermostatAccessory.prototype.setTargetTemperature = function(TargetTemperature, callback, context) {
+    if(context !== 'fromSetValue') {
+      this.TargetTemperature = TargetTemperature;
+      this.client.publish(this.topics.set + 'setTargetTemperature', String(this.TargetTemperature), this.options_publish); 
+    }
+    callback();
 }
 
 mqttnestthermostatAccessory.prototype.isAway = function(callback) {
     callback(null, this.Away);
 }        
 
-mqttnestthermostatAccessory.prototype.setAway = function(Away, callback, context) {
-    if(context !== 'fromSetValue') {
-      this.Away = Away;
-    }
-    callback();
-}      
+mqttnestthermostatAccessory.prototype.getFanSpeed = function(callback) {
+    callback(null, this.Fanspeed);
+}
 
 mqttnestthermostatAccessory.prototype.getTargetHeatingCoolingState = function(callback) {
     callback(null, this.TargetHeatingCoolingState);
 }
 
-mqttnestthermostatAccessory.prototype.setTargetHeatingCoolingState = function(TargetHeatingCoolingState, callback, context) {
-    if(context !== 'fromSetValue') {
-      this.TargetHeatingCoolingState = TargetHeatingCoolingState;
-      if (this.TargetHeatingCoolingState == Characteristic.CurrentHeatingCoolingState.COOL) {
-        this.client.publish(this.topics.setOn,  '{' + this.payload_mode + ':' + this.payload_on + ',' + this.payload_temp + ':' + this.TargetTemperature + '}', this.options_publish);
-      } else if (this.TargetHeatingCoolingState == Characteristic.CurrentHeatingCoolingState.OFF) {
-        this.client.publish(this.topics.setOn,  '{' + this.payload_mode + ':' + this.payload_off + ',' + this.payload_temp + ':' + this.TargetTemperature + '}', this.options_publish);
-      }
-    }
-    callback();
-}
-
 mqttnestthermostatAccessory.prototype.getTargetTemperature = function(callback) {
     callback(null, this.TargetTemperature);
-}
-
-mqttnestthermostatAccessory.prototype.setTargetTemperature = function(TargetTemperature, callback, context) {
-    if(context !== 'fromSetValue') {
-      this.TargetTemperature = TargetTemperature;
-      if (this.TargetHeatingCoolingState == Characteristic.CurrentHeatingCoolingState.COOL) {
-        this.client.publish(this.topics.setOn,  '{' + this.payload_mode + ':' + this.payload_on + ',' + this.payload_temp + ':' + this.TargetTemperature + '}', this.options_publish);
-      } else if (this.TargetHeatingCoolingState == Characteristic.CurrentHeatingCoolingState.OFF) {
-        this.client.publish(this.topics.setOn,  '{' + this.payload_mode + ':' + this.payload_off + ',' + this.payload_temp + ':' + this.TargetTemperature + '}', this.options_publish);
-      }
-    }
-    callback();
 }
 
 mqttnestthermostatAccessory.prototype.getCurrentTemperature = function(callback) {
@@ -200,4 +211,24 @@ function makeAwayCharacteristic() {
     inherits(AwayCharacteristic, Characteristic);
     AwayCharacteristic.HOME = 0;
     AwayCharacteristic.AWAY = 1;
+}
+
+function makeFanSpeedCharacteristic() {
+
+    FanSpeedCharacteristic = function() {
+        Characteristic.call(this, 'FanSpeed', '00011033-0000-0000-8000-0026BB765291');
+        this.setProps({
+          format: Characteristic.Formats.UINT8, 
+          maxValue: 2,
+          minValue: 0,
+          minStep: 1,
+          perms: [Characteristic.Perms.READ, Characteristic.Perms.WRITE, Characteristic.Perms.NOTIFY]
+        });
+        this.value = this.getDefaultValue();
+    };
+
+    inherits(FanSpeedCharacteristic, Characteristic);
+    FanSpeedCharacteristic.LOW  = 0;
+    FanSpeedCharacteristic.MID  = 1;
+    FanSpeedCharacteristic.HIGH = 2;
 }

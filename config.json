@@ -13,23 +13,14 @@
     "accessories": [
         {
           "accessory":                 "mqtt-nestthermostat",
-          "name":                      "mqtt-nestthermostat",
+          "name":                      "mqtt-nest-thermostat",
           "url":                       "mqtt://127.0.0.1",
           "username":                  "xxxxxxx",
           "password":                  "xxxxxxx",
-          "caption":                   "mqtt-nestthermostat",
-          "payload_mode":              "ac_mode",
-          "payload_on":                "true",
-          "payload_off":               "false",
-          "payload_temp":              "ac_temp",
-          "payload_ctemp":             "cur_temp",
-          "payload_chui":              "cur_humi",
-          "TargetTemperature":         27,
-          "TargetHeatingCoolingState": 0,
+          "caption":                   "mqtt-nest-thermostat",
           "topics": {
-                 "setOn":              "homekit/bedroom/nest/set",
-                 "getOn":              "homekit/bedroom/nest/get"
-          }
+                 "set":                "homekit/livingroom/nest/set/",
+                 "get":                "homekit/livingroom/nest/get/"
         }
     ]
 }
