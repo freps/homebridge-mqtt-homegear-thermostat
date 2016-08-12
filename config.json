@@ -10,6 +10,7 @@
 
     "platforms": [
     ],
+
     "accessories": [
         {
           "accessory":                 "mqtt-nestthermostat",
@@ -22,5 +23,6 @@
                  "set":                "homekit/livingroom/nest/set/",
                  "get":                "homekit/livingroom/nest/get/"
         }
+      }
     ]
 }

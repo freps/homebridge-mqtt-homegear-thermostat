@@ -41,6 +41,8 @@ function mqttnestthermostatAccessory(log, config) {
   this.FanSpeed                   = 0;
   this.Away                       = 0;
 
+  //this.topic_for_esp8266          = "esp8266/cmd/acset";
+
   this.options_publish = {
     qos: 0,
     retain: true
@@ -110,12 +112,14 @@ function mqttnestthermostatAccessory(log, config) {
         that.CurrentTemperature         = status["CurrentTemperature"];
         that.CurrentRelativeHumidity    = status["CurrentRelativeHumidity"];
         that.TargetTemperature          = status["TargetTemperature"];
+        that.CurrentHeatingCoolingState = status["CurrentHeatingCoolingState"];
 
         that.service.getCharacteristic(AwayCharacteristic).setValue(that.Away, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.TargetHeatingCoolingState).setValue(that.TargetHeatingCoolingState, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.TargetTemperature).setValue(that.TargetTemperature, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.CurrentTemperature).setValue(that.CurrentTemperature, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.CurrentRelativeHumidity).setValue(that.CurrentRelativeHumidity, undefined, 'fromSetValue');
+        that.service.getCharacteristic(Characteristic.CurrentHeatingCoolingState).setValue(that.CurrentHeatingCoolingState, undefined, 'fromSetValue');
     }
   });
   this.client.subscribe(this.topics.get + '#');
@@ -141,6 +145,7 @@ mqttnestthermostatAccessory.prototype.setFanSpeed = function(Fanspeed, callback,
     if(context !== 'fromSetValue') {
       this.Fanspeed = Fanspeed;
       this.client.publish(this.topics.set + 'setFanSpeed', String(this.Fanspeed), this.options_publish); 
+      //this.client.publish(this.topic_for_esp8266, '{"ac_flow":' + String(this.Fanspeed) + '}', this.options_publish);
     }
     callback();
 }
@@ -157,6 +162,7 @@ mqttnestthermostatAccessory.prototype.setTargetTemperature = function(TargetTemp
     if(context !== 'fromSetValue') {
       this.TargetTemperature = TargetTemperature;
       this.client.publish(this.topics.set + 'setTargetTemperature', String(this.TargetTemperature), this.options_publish); 
+      //this.client.publish(this.topic_for_esp8266, '{"ac_temp":' + String(this.TargetTemperature) + '}', this.options_publish);
     }
     callback();
 }
