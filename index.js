@@ -107,14 +107,19 @@ function mqttnestthermostatAccessory(log, config) {
   this.client.on('message', function (topic, message) {
     if (topic == that.topics.get + 'api') {
         var status = JSON.parse(message);
+
+        console.log(status)
+
         that.Away                       = status["away_state"];
         that.TargetHeatingCoolingState  = status["TargetHeatingCoolingState"];
         that.CurrentTemperature         = status["CurrentTemperature"];
         that.CurrentRelativeHumidity    = status["CurrentRelativeHumidity"];
         that.TargetTemperature          = status["TargetTemperature"];
         that.CurrentHeatingCoolingState = status["CurrentHeatingCoolingState"];
+        that.CurrentFanSpeed            = status["CurrentFanSpeed"];
 
         that.service.getCharacteristic(AwayCharacteristic).setValue(that.Away, undefined, 'fromSetValue');
+        that.service.getCharacteristic(FanSpeedCharacteristic).setValue(that.CurrentFanSpeed, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.TargetHeatingCoolingState).setValue(that.TargetHeatingCoolingState, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.TargetTemperature).setValue(that.TargetTemperature, undefined, 'fromSetValue');
         that.service.getCharacteristic(Characteristic.CurrentTemperature).setValue(that.CurrentTemperature, undefined, 'fromSetValue');
