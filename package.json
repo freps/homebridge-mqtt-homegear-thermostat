@@ -1,36 +1,36 @@
 {
-  "name": "homebridge-mqtt-nestthermostat",
-  "version": "0.0.3",
-  "description": "Homebridge plugin for MQTT mqtt-nestthermostat",
-  "note": "peerDependencies is hardcoded to peerDepdendencies in homebridge!!!",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "echo \"Error: configure and run homebridge to start\" && exit 1"
-  },
-  "engines": {
-    "node": ">4.0.0",
-    "homebridge": ">=0.2.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/chaeplin/homebridge-mqtt-nestthermostat"
-  },
-  "keywords": [
-    "homebridge-plugin",
-    "MQTT",
-    "homekit",
-    "Siri",
-    "IoT",
-    "mqtt-nestthermostat"
-  ],
-  "dependencies": {
-    "mqtt": "^1.6.3"
-  },
-  "author": "chaeplin",
-  "license": "GPL2",
-  "bugs": {
-    "url": "https://github.com/chaeplin/homebridge-mqtt-nestthermostat/issues"
-  },
-  "homepage": "https://github.com/chaeplin/homebridge-mqtt-nestthermostat"
+    "name": "homebridge-mqtt-homegear-thermostat",
+    "version": "0.0.3",
+    "description": "Homebridge plugin for MQTT homebridge-mqtt-homegear-thermostat",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "echo \"Error: configure and run homebridge to start\" && exit 1"
+    },
+    "engines": {
+        "node": ">4.0.0",
+        "homebridge": ">=0.2.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/freps/homebridge-mqtt-homegear-thermostat"
+    },
+    "keywords": [
+        "homebridge-plugin",
+        "MQTT",
+        "homekit",
+        "homegear",
+        "Siri",
+        "IoT",
+        "homebridge-mqtt-homegear-thermostat"
+    ],
+    "dependencies": {
+        "mqtt": "^1.6.3"
+    },
+    "author": "freps",
+    "license": "GPL2",
+    "bugs": {
+        "url": "https://github.com/freps/homebridge-mqtt-homegear-thermostat/issues"
+    },
+    "homepage": "https://github.com/freps/homebridge-mqtt-homegear-thermostat"
 }
