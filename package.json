@@ -1,6 +1,6 @@
 {
     "name": "homebridge-mqtt-homegear-thermostat",
-    "version": "0.0.3",
+    "version": "0.0.3a",
     "description": "Homebridge plugin for MQTT homebridge-mqtt-homegear-thermostat",
     "main": "index.js",
     "scripts": {
